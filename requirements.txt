@@ -1,0 +1,8 @@
+autogen-core
+autogen-agentchat
+autogen-ext
+autogen-ext[openai]
+python-dotenv
+ipykernel
+pydantic
+PyPDF2
