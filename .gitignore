@@ -7,5 +7,5 @@ logs/
 __pycache__/
 *.pyc
 data/
-test.py
+test*.py
 setup.cfg

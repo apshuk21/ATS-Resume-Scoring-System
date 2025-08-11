@@ -11,6 +11,14 @@ class ATSAgents:
     def __init__(self):
         self._model_client = ModelLoader().model_client
 
+    def input_router_agent(self):
+        return AssistantAgent(
+            name="Input_Router_Agent",
+            description="",
+            model_client=self._model_client,
+            system_message=SystemPrompts.INPUT_ROUTER_AGENT.value,
+        )
+
     def resume_processing_agent(self):
         return AssistantAgent(
             name="Resume_Processing_Agent",
