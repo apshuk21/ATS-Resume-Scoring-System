@@ -5,4 +5,5 @@ autogen-ext[openai]
 python-dotenv
 ipykernel
 pydantic
+pydantic[email]
 PyPDF2
