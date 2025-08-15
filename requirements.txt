@@ -7,3 +7,8 @@ ipykernel
 pydantic
 pydantic[email]
 PyPDF2
+fastapi
+uvicorn
+python-multipart
+pymupdf
+python-docx

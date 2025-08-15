@@ -38,7 +38,6 @@ class SystemPrompts(str, Enum):
         "- List of keywords to add\n"
         "- Formatting issues\n"
         "- Overall commentary\n"
-        "Please terminate the workflow by sending TERMINATE in the final response."
     )
 
     VISUALIZATION_AGENT = """
@@ -65,4 +64,6 @@ class SystemPrompts(str, Enum):
         - Numeric fields must be numbers, not strings.
         - Only the four chart types listed are allowed.
         - Output ONLY valid JSON that matches VisualizationPayloadSchema exactly.
+
+        "Please terminate the workflow by sending TERMINATE in the final response."
     """

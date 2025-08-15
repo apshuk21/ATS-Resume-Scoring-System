@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ATS Resume Analyzer</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
+    ></script>
+    <script defer src="/static/script.js"></script>
+  </head>
+  <body>
+    <h1>ATS Resume Analyzer</h1>
+    <form id="analyze-form" enctype="multipart/form-data">
+      <label for="resume">Upload Resume (PDF/DOCX):</label><br />
+      <input
+        type="file"
+        id="resume"
+        name="resume"
+        accept=".pdf,.docx"
+        required
+      /><br /><br />
+
+      <label for="job_description">Job Description:</label><br />
+      <textarea
+        id="job_description"
+        name="job_description"
+        placeholder="Paste job description here..."
+        required
+      ></textarea
+      ><br /><br />
+
+      <button id="analyze-btn" type="submit">Analyze</button>
+    </form>
+
+    <div id="summary" aria-live="polite"></div>
+    <div id="charts-container"></div>
+  </body>
+</html>

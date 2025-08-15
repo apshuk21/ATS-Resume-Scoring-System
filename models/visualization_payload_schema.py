@@ -37,3 +37,15 @@ class VisualizationPayloadSchema(BaseModel):
     timestamp: datetime = Field(
         ..., description="Timestamp of visualization generation"
     )
+
+
+# ==== Request Model (form fields handled via Form/File in route) ====
+# For FastAPI, uploaded file & job_description will be passed directly,
+# so no Pydantic model for request body here.
+
+
+# ==== Response Model ====
+class AnalysisResponse(VisualizationPayloadSchema):
+    """Directly extends the payload schema for response typing."""
+
+    pass
