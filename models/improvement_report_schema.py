@@ -10,7 +10,7 @@ class ImprovementSuggestion(BaseModel):
     priority: str = Field(..., description="Priority level: High, Medium, Low")
 
 
-class ImprovementReport(BaseModel):
+class ImprovementReportSchema(BaseModel):
     suggestions: List[ImprovementSuggestion] = Field(
         ..., description="List of improvement suggestions"
     )

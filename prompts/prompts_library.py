@@ -25,7 +25,6 @@ class SystemPrompts(str, Enum):
         "Generate a detailed score breakdown across the following dimensions:\n"
         "- Skills match\n- Experience relevance\n- Education alignment\n- Formatting quality\n- Keyword optimization\n"
         "Return a dictionary with scores, matched/missing elements, and rationale.\n"
-        "Please terminate the workflow by sending TERMINATE in the final response."
     )
 
     IMPROVEMENT_AGENT = (
@@ -38,18 +37,32 @@ class SystemPrompts(str, Enum):
         "- Priority levels (High, Medium, Low)\n"
         "- List of keywords to add\n"
         "- Formatting issues\n"
-        "- Overall commentary"
+        "- Overall commentary\n"
+        "Please terminate the workflow by sending TERMINATE in the final response."
     )
 
-    VISUALIZATION_AGENT = (
-        "You are a visualization agent. Convert the scoring report and improvement suggestions into a visualization-ready structure.\n"
-        "Inputs include:\n"
-        "- A detailed scoring report with breakdowns and benchmarks\n"
-        "- A list of improvement suggestions with priorities\n"
-        "Output should be JSON-compatible and suitable for frontend rendering. Include:\n"
-        "- Matched vs missing skills\n"
-        "- Percentile comparisons and industry benchmarks\n"
-        "- Suggested improvements grouped by resume section\n"
-        "- Chart-friendly data formats (e.g., bar chart values, pie chart segments)\n"
-        "- A summary text for display"
-    )
+    VISUALIZATION_AGENT = """
+        You are a visualization agent. You will receive two structured inputs in prior messages:
+        1) ScoreReportSchema from the Scoring Agent.
+        2) ImprovementReportSchema from the Improvement Agent.
+        Combine them to produce one VisualizationPayloadSchema.
+
+        Required output (VisualizationPayloadSchema):
+        - charts: object where keys are chart IDs and values are ChartData objects.
+        - summary_text: string (concise narrative of performance).
+        - improvement_highlights: array of strings (key suggestions).
+        - timestamp: ISO 8601 string, e.g., 2025-08-15T08:43:00Z.
+
+        ChartData object (for each charts[key]):
+        - type: one of "bar", "pie", "gauge", "radar".
+        - title: string.
+        - labels: array of strings.
+        - values: array of numbers (no units, no strings).
+        - metadata: optional object (may be omitted).
+
+        Rules:
+        - Use both inputs: scoring breakdown + improvement suggestions.
+        - Numeric fields must be numbers, not strings.
+        - Only the four chart types listed are allowed.
+        - Output ONLY valid JSON that matches VisualizationPayloadSchema exactly.
+    """

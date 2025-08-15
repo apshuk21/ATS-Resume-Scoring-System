@@ -5,6 +5,8 @@ from prompts.prompts_library import SystemPrompts
 from models.resume_schema import ResumeSchema
 from models.job_description_schema import JobDescriptionSchema
 from models.score_report_schema import ScoreReportSchema
+from models.improvement_report_schema import ImprovementReportSchema
+from models.visualization_payload_schema import VisualizationPayloadSchema
 
 
 class ATSAgents:
@@ -40,7 +42,7 @@ class ATSAgents:
     def scoring_agent(self):
         return AssistantAgent(
             name="Scoring_Agent",
-            description="",
+            description="The agent to generate the resume ATS score",
             model_client=self._model_client,
             system_message=SystemPrompts.SCORING_AGENT.value,
             output_content_type=ScoreReportSchema,
@@ -49,17 +51,19 @@ class ATSAgents:
     def improvement_agent(self):
         return AssistantAgent(
             name="Improvement_Agent",
-            description="",
+            description="The agent to suggest the improvements required in the resume",
             model_client=self._model_client,
             system_message=SystemPrompts.IMPROVEMENT_AGENT.value,
+            output_content_type=ImprovementReportSchema,
         )
 
     def visualization_agent(self):
         return AssistantAgent(
             name="Visualization_Agent",
-            description="",
+            description="The agent to generate the data for the visualization report",
             model_client=self._model_client,
             system_message=SystemPrompts.VISUALIZATION_AGENT.value,
+            output_content_type=VisualizationPayloadSchema,
         )
 
 
