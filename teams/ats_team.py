@@ -1,4 +1,5 @@
 from autogen_agentchat.teams import DiGraphBuilder, GraphFlow
+from autogen_agentchat.base import TaskResult
 from agents.ats_agents import ATSAgents
 from autogen_agentchat.messages import StructuredMessage
 from models.resume_schema import ResumeSchema
@@ -71,3 +72,17 @@ class ATSTeam:
                 StructuredMessage[VisualizationPayloadSchema],
             ],
         )
+
+    async def run_ats_team(self, resume_text: str, job_description: str) -> TaskResult:
+        resume_data = {
+            "resume": resume_text,
+            "job_description": job_description,
+        }
+        query = f"{resume_data}"
+
+        # Create the team
+        ats_team = self.create_graph_flow()
+
+        task_result = await ats_team.run(task=query)
+
+        return task_result

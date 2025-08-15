@@ -64,6 +64,4 @@ class SystemPrompts(str, Enum):
         - Numeric fields must be numbers, not strings.
         - Only the four chart types listed are allowed.
         - Output ONLY valid JSON that matches VisualizationPayloadSchema exactly.
-
-        "Please terminate the workflow by sending TERMINATE in the final response."
     """

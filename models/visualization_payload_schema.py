@@ -7,7 +7,7 @@ from datetime import datetime
 class ChartData(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    type: Literal["bar", "pie", "gauge", "radar"] = Field(
+    type: Literal["bar", "pie", "doughnut", "radar"] = Field(
         ..., description="Type of chart"
     )
     title: str = Field(..., description="Chart title")

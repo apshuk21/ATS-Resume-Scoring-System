@@ -1,3 +1,45 @@
+const data = {
+  charts: {
+    skills_match: {
+      type: "radar",
+      title: "Skills Match Analysis",
+      labels: ["Matched Skills", "Missing Skills"],
+      values: [5, 9],
+      metadata: null,
+    },
+    education_alignment: {
+      type: "pie",
+      title: "Education Alignment",
+      labels: ["Aligned", "Not Aligned"],
+      values: [1, 0],
+      metadata: null,
+    },
+    score_breakdown: {
+      type: "bar",
+      title: "Score Breakdown",
+      labels: [
+        "Skills Match",
+        "Experience Relevance",
+        "Education Alignment",
+        "Format & Structure",
+        "Keyword Optimization",
+      ],
+      values: [16, 19, 4, 9, 9],
+      metadata: null,
+    },
+  },
+  summary_text:
+    "Apoorva Shukla's resume scores 78 out of 100 against the Senior Frontend Engineer role. Skills in JavaScript and React are strong, but important technologies like TypeScript and GraphQL are missing. The candidate's experience exceeds the requirement with over 8 years in relevant roles. Education is aligned, though lacks field specification.",
+  improvement_highlights: [
+    "Add TypeScript, Next.js, Tailwind CSS or Styled Components, Redux, and other missing skills to the skills section.",
+    "Highlight specific projects involving TypeScript and testing frameworks like Jest and Cypress.",
+    "Specify field of study in the education section for better clarity.",
+    "Add a resume summary to highlight key strengths and career objectives.",
+    "Include detailed achievements related to frontend technologies.",
+  ],
+  timestamp: "2023-10-27T18:35:00Z",
+};
+
 // /static/script.js
 (() => {
   const form = document.getElementById("analyze-form");
@@ -59,46 +101,46 @@
       summaryEl.append(h2, p, h3, ul, ts);
 
       // Charts
-      //   const charts =
-      //     data?.charts && typeof data.charts === "object" ? data.charts : {};
-      //   chartsEl.innerHTML = ""; // ensure empty
+      const charts =
+        data?.charts && typeof data.charts === "object" ? data.charts : {};
+      chartsEl.innerHTML = ""; // ensure empty
 
-      //   Object.entries(charts).forEach(([_, chartData]) => {
-      //     const canvas = document.createElement("canvas");
-      //     chartsEl.appendChild(canvas);
+      Object.entries(charts).forEach(([_, chartData]) => {
+        const canvas = document.createElement("canvas");
+        chartsEl.appendChild(canvas);
 
-      //     const type = chartData?.type ?? "bar";
-      //     const labels = Array.isArray(chartData?.labels) ? chartData.labels : [];
-      //     const values = Array.isArray(chartData?.values) ? chartData.values : [];
-      //     const colors =
-      //       chartData?.metadata?.colors ??
-      //       labels.map((_, i) => `hsl(${(i * 47) % 360} 70% 60%)`);
-      //     const title = chartData?.title ?? "Chart";
+        const type = chartData?.type ?? "bar";
+        const labels = Array.isArray(chartData?.labels) ? chartData.labels : [];
+        const values = Array.isArray(chartData?.values) ? chartData.values : [];
+        const colors =
+          chartData?.metadata?.colors ??
+          labels.map((_, i) => `hsl(${(i * 47) % 360} 70% 60%)`);
+        const title = chartData?.title ?? "Chart";
 
-      //     const cfg = {
-      //       type,
-      //       data: {
-      //         labels,
-      //         datasets: [
-      //           {
-      //             label: title,
-      //             data: values,
-      //             backgroundColor: colors,
-      //           },
-      //         ],
-      //       },
-      //       options: {
-      //         responsive: true,
-      //         plugins: {
-      //           legend: { display: true },
-      //           title: { display: true, text: title },
-      //         },
-      //       },
-      //     };
+        const cfg = {
+          type,
+          data: {
+            labels,
+            datasets: [
+              {
+                label: title,
+                data: values,
+                backgroundColor: colors,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: true },
+              title: { display: true, text: title },
+            },
+          },
+        };
 
-      //     const chart = new Chart(canvas, cfg);
-      //     chartInstances.push(chart);
-      //   });
+        const chart = new Chart(canvas, cfg);
+        chartInstances.push(chart);
+      });
     } catch (err) {
       summaryEl.innerHTML =
         "<p style='color:red'>Error processing request.</p>";
