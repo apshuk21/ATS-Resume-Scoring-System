@@ -28,6 +28,7 @@ class AgentOutput(Base):
     session_id = Column(UUID(as_uuid=True), ForeignKey("sessions.id"), nullable=False)
     agent_name = Column(String, nullable=False)
     output = Column(JSONB, nullable=False)
+    models_usage = Column(JSONB, nullable=True)
     hash = Column(String, nullable=False, index=True)
     created_at = Column(
         TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)

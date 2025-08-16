@@ -46,6 +46,15 @@ def extract_resume_text(filename: str, file_bytes: bytes) -> str:
         raise ValueError("Unsupported file format. Please upload a PDF or DOCX.")
 
 
+def safe_model_dump(obj):
+    if hasattr(obj, "model_dump"):
+        return obj.model_dump()
+    elif hasattr(obj, "__dict__"):
+        return obj.__dict__
+    else:
+        return str(obj)
+
+
 # NEW FUNCTION: Session lookup or creation
 def get_or_create_session(db: Session, resume: str, jd: str) -> ResumeSession:
     session_hash = compute_hash(resume + jd)
@@ -64,14 +73,15 @@ def get_cached_outputs(db: Session, session_id: int) -> list[AgentOutputModel]:
     return db.query(AgentOutputModel).filter_by(session_id=session_id).all()
 
 
-# # NEW FUNCTION: Store outputs
-# def store_agent_outputs(db: Session, session_id: int, outputs: dict):
-#     for agent_name, result in outputs.items():
-#         db_output = AgentOutputModel(
-#             session_id=session_id, agent_name=agent_name, output=result
-#         )
-#         db.add(db_output)
-#     db.commit()
+def prepare_for_json(obj):
+    if isinstance(obj, dict):
+        return {k: prepare_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [prepare_for_json(v) for v in obj]
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    else:
+        return obj
 
 
 # NEW FUNCTION: Store individual agent output
@@ -84,14 +94,15 @@ def store_agent_output(
     models_usage: Optional[dict] = None,
     hash: Optional[str] = None,
 ):
+    safe_output = prepare_for_json(output)
+
     if hash is None:
-        hash_input = agent_name + json.dumps(output, sort_keys=True)
-        hash = compute_hash(hash_input)
+        hash = compute_hash(agent_name + json.dumps(safe_output, sort_keys=True))
 
     db_output = AgentOutputModel(
         session_id=session_id,
         agent_name=agent_name,
-        output=output,
+        output=safe_output,
         created_at=created_at,
         models_usage=models_usage,
         hash=hash,
@@ -176,13 +187,36 @@ async def analyze_resume(
 
     # 2. Session lookup or creation
     session = get_or_create_session(db, resume_text, job_description)
+    print("##session hash", session.hash)
+    print("##session id", session.id)
 
     # 3. Check cache
     cached_outputs = get_cached_outputs(db, session.id)
     print("##cached outputs", cached_outputs)
+
     if cached_outputs:
         print("Returning cached outputs")
-        return AnalysisResponse(message="Cached results found", chart_data=[])
+
+        # 3a. Look for VisualizationAgent output
+        viz_output = next(
+            (o for o in cached_outputs if o.agent_name == "Visualization_Agent"), None
+        )
+
+        if viz_output:
+            try:
+                # Validate and reconstruct AnalysisResponse
+                response_data = VisualizationPayloadSchema.model_validate(
+                    viz_output.output
+                )
+                return AnalysisResponse(**response_data.model_dump())
+            except Exception as e:
+                print(f"Error reconstructing AnalysisResponse from cache: {e}")
+                raise HTTPException(status_code=500, detail="Cached data invalid")
+
+        # 3b. If VisualizationAgent output not found
+        raise HTTPException(
+            status_code=404, detail="VisualizationAgent output not found in cache"
+        )
 
     # 4. Run agents
     ats_team_results = await ATSTeam().run_ats_team(
@@ -196,22 +230,31 @@ async def analyze_resume(
                 output_dict = message.content.model_dump()
                 print("##output_dict", output_dict)
                 print("****" * 10)
-                # usage_dict = (
-                #     message.models_usage.model_dump() if message.models_usage else None
-                # )
-                # hash_key = compute_hash(
-                #     message.source + json.dumps(output_dict, sort_keys=True)
-                # )
+                usage_dict = (
+                    safe_model_dump(message.models_usage)
+                    if message.models_usage
+                    else None
+                )
+                print("##usage_dict", usage_dict)
+                print("****" * 10)
 
-                # store_agent_output(
-                #     db=db,
-                #     session_id=session.id,
-                #     agent_name=message.source,
-                #     output=output_dict,
-                #     created_at=message.created_at,
-                #     models_usage=usage_dict,
-                #     hash=hash_key,
-                # )
+                safe_output = prepare_for_json(output_dict)
+                hash_key = compute_hash(
+                    message.source + json.dumps(safe_output, sort_keys=True)
+                )
+
+                print("##hash_key", hash_key)
+                print("****" * 10)
+
+                store_agent_output(
+                    db=db,
+                    session_id=session.id,
+                    agent_name=message.source,
+                    output=safe_output,
+                    created_at=message.created_at,
+                    models_usage=usage_dict,
+                    hash=hash_key,
+                )
             except Exception as e:
                 print(f"Skipping message from {message.source}: {e}")
 
